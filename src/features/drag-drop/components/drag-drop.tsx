@@ -13,6 +13,9 @@ export default function DragDrop() {
     const [isPending, setIsPending] = useState(false);
     const ref = useRef<HTMLInputElement>(null);
 
+    /**
+     * Handle paste event to upload video from clipboard.
+     */
     useEffect(() => {
         const handlePaste = (e: ClipboardEvent) => {
             const items = e.clipboardData?.items;
