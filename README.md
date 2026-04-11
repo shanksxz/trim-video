@@ -4,11 +4,12 @@ Trimmify is a simple web application that allows users to trim their videos. The
 
 ## Features
 
--   Trim videos
--   Download trimmed videos
--   Preview trimmed videos
+- Trim videos
+- Download trimmed videos
+- Preview trimmed videos
 
 ## Directory Structure
+
 ```
 src/
 ├── app/

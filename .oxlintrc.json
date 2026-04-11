@@ -1,0 +1,51 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "ignorePatterns": ["dist", "coverage", "node_modules"],
+    "plugins": ["eslint", "oxc", "typescript", "unicorn", "react", "jsx-a11y", "import", "promise"],
+    "settings": {
+        "react": {
+            "version": "19.0"
+        }
+    },
+    "categories": {
+        "correctness": "error",
+        "suspicious": "warn",
+        "perf": "warn"
+    },
+    "rules": {
+        "eslint/no-unused-vars": [
+            "error",
+            {
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_"
+            }
+        ],
+        "eslint/eqeqeq": ["error", "always", { "null": "ignore" }],
+        "import/no-duplicates": "error",
+        "import/no-unassigned-import": "off",
+        "promise/no-return-wrap": "warn",
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-key": "error",
+        "react/jsx-no-duplicate-props": "error",
+        "react/jsx-no-undef": "error",
+        "react/no-direct-mutation-state": "error",
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "warn",
+        "react/jsx-no-constructed-context-values": "warn",
+        "unicorn/prefer-add-event-listener": "off",
+        "unicorn/consistent-function-scoping": "warn",
+        "jsx-a11y/alt-text": "warn",
+        "jsx-a11y/anchor-is-valid": "warn",
+        "jsx-a11y/click-events-have-key-events": "warn",
+        "jsx-a11y/no-static-element-interactions": "warn",
+        "jsx-a11y/media-has-caption": "off"
+    },
+    "overrides": [
+        {
+            "files": ["**/*.d.ts"],
+            "rules": {
+                "unicorn/require-module-specifiers": "off"
+            }
+        }
+    ]
+}
