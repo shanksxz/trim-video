@@ -1,5 +1,3 @@
-"use client";
-
 import { Editor } from "@/components/layout/editor";
 import { UploadZone } from "@/features/uploads/components/upload-zone";
 import { Preview } from "@/features/video/components/video-preview";

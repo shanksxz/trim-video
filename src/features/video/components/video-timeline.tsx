@@ -1,5 +1,3 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 import { useFfmpeg } from "@/hooks/use-ffmpeg";
 import { useCallback, useEffect, useRef, useState } from "react";

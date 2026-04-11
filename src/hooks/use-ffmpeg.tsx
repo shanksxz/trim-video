@@ -1,5 +1,3 @@
-"use client";
-
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
 import { createContext, useContext, useEffect, useRef, useState } from "react";

@@ -1,5 +1,3 @@
-"use client";
-
 import { useFfmpeg } from "@/hooks/use-ffmpeg";
 import { useLayoutEffect, useReducer, useRef } from "react";
 import { toast } from "sonner";
