@@ -12,43 +12,66 @@ import {
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertTriangle, Download, Eye, Volume2, VolumeX } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { VideoTrimmerProps } from "../types";
-import { validateTimeFormat, validateTimeRange } from "../utils";
+import { validateTrimTimes } from "../validations/trim-times";
+import { formatTime } from "../utils";
 
 export default function VideoTrimmer({
     onProcessVideo,
     duration,
     setDuration,
     processing,
+    videoDurationSeconds,
     onPreviewVideo,
-    clearPreviewUrl,
     quality,
     onQualityChange,
     qualities,
     muted,
     onMuteToggle,
 }: VideoTrimmerProps) {
+    const [startProp, endProp] = duration;
+    const [startField, setStartField] = useState(startProp);
+    const [endField, setEndField] = useState(endProp);
     const [error, setError] = useState<string | null>(null);
-    const trimLocked = processing || !!error;
 
-    const handleDurationChange = (index: 0 | 1, value: string) => {
-        if (!validateTimeFormat(value)) {
-            setError("Invalid time format. Please use HH:MM:SS");
-            return;
+    useEffect(() => {
+        setStartField(startProp);
+        setEndField(endProp);
+    }, [startProp, endProp]);
+
+    const commitIfValid = useCallback((): { startSec: number; endSec: number } | null => {
+        const result = validateTrimTimes(startField, endField, { videoDurationSeconds });
+        if (!result.ok) {
+            setError(result.message);
+            return null;
         }
-
-        const newDuration: [string, string] = [...duration] as [string, string];
-        newDuration[index] = value;
-
-        if (!validateTimeRange(newDuration[0], newDuration[1])) {
-            setError("End time must be after start time");
-            return;
-        }
-
-        setDuration(newDuration);
-        clearPreviewUrl();
         setError(null);
+        const normalizedStart = formatTime(result.startSec);
+        const normalizedEnd = formatTime(result.endSec);
+        setStartField(normalizedStart);
+        setEndField(normalizedEnd);
+        setDuration([normalizedStart, normalizedEnd]);
+        return { startSec: result.startSec, endSec: result.endSec };
+    }, [startField, endField, setDuration, videoDurationSeconds]);
+
+    const inputDisabled = processing;
+    const actionsDisabled = processing;
+
+    const handleBlur = () => {
+        commitIfValid();
+    };
+
+    const handlePreview = () => {
+        const range = commitIfValid();
+        if (!range) return;
+        onPreviewVideo(range);
+    };
+
+    const handleDownload = () => {
+        const range = commitIfValid();
+        if (!range) return;
+        void onProcessVideo(range);
     };
 
     return (
@@ -63,7 +86,8 @@ export default function VideoTrimmer({
                             </Badge>
                         </CardTitle>
                         <CardDescription className="text-sm text-muted-foreground">
-                            Set start and end with HH:MM:SS, then preview or download.
+                            Set start and end as HH:MM:SS (minutes and seconds 0–59), then preview
+                            or download.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -83,7 +107,7 @@ export default function VideoTrimmer({
 
                             <Select
                                 value={quality.label}
-                                disabled={trimLocked}
+                                disabled={inputDisabled}
                                 onValueChange={(value) => {
                                     const newQuality = qualities.find((q) => q.label === value);
                                     if (newQuality) onQualityChange(newQuality);
@@ -119,7 +143,7 @@ export default function VideoTrimmer({
                                     <Button
                                         variant={muted ? "destructive" : "outline"}
                                         size="sm"
-                                        disabled={trimLocked}
+                                        disabled={inputDisabled}
                                         onClick={() => onMuteToggle(!muted)}
                                     >
                                         {muted ? (
@@ -141,22 +165,32 @@ export default function VideoTrimmer({
                                 <Label className="text-sm font-medium">Start Time</Label>
                                 <Input
                                     type="text"
-                                    value={duration[0]}
-                                    disabled={trimLocked}
-                                    onChange={(e) => handleDurationChange(0, e.target.value)}
+                                    value={startField}
+                                    disabled={inputDisabled}
+                                    onChange={(e) => {
+                                        setStartField(e.target.value);
+                                        setError(null);
+                                    }}
+                                    onBlur={handleBlur}
                                     placeholder="00:00:00"
                                     className={error ? "border-destructive" : ""}
+                                    autoComplete="off"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium">End Time</Label>
                                 <Input
                                     type="text"
-                                    value={duration[1]}
-                                    disabled={trimLocked}
-                                    onChange={(e) => handleDurationChange(1, e.target.value)}
+                                    value={endField}
+                                    disabled={inputDisabled}
+                                    onChange={(e) => {
+                                        setEndField(e.target.value);
+                                        setError(null);
+                                    }}
+                                    onBlur={handleBlur}
                                     placeholder="00:00:00"
                                     className={error ? "border-destructive" : ""}
+                                    autoComplete="off"
                                 />
                             </div>
                         </div>
@@ -175,8 +209,8 @@ export default function VideoTrimmer({
                         <TooltipTrigger asChild>
                             <Button
                                 size="lg"
-                                onClick={onPreviewVideo}
-                                disabled={trimLocked}
+                                onClick={handlePreview}
+                                disabled={actionsDisabled}
                                 variant="outline"
                                 className="w-full"
                             >
@@ -192,9 +226,9 @@ export default function VideoTrimmer({
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
-                                onClick={onProcessVideo}
+                                onClick={handleDownload}
                                 size="lg"
-                                disabled={trimLocked}
+                                disabled={actionsDisabled}
                                 className="w-full"
                             >
                                 <Download className="h-4 w-4 mr-2" />

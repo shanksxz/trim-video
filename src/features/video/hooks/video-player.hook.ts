@@ -3,7 +3,8 @@ import { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from "rea
 import { toast } from "sonner";
 import { VIDEO_QUALITIES } from "../constants";
 import { initialVideoPlayerState, videoPlayerReducer } from "../state";
-import { downloadVideo, formatTime, parseTimeCodeToSeconds, processVideo } from "../utils";
+import type { TrimRangeSeconds } from "../types";
+import { downloadVideo, formatTime, processVideo, tryParseHmsToSeconds } from "../utils";
 
 /**
  * Source file playback, optional preview blob, manual trim times, and FFmpeg export.
@@ -78,12 +79,12 @@ export function useVideoPlayer(videoUrl: string, ffmpeg: FFmpeg, ffmpegLoaded: b
     }, [ffmpegLoaded, videoUrl]);
 
     const runExport = useCallback(
-        async (isPreview: boolean) => {
+        async (isPreview: boolean, range: TrimRangeSeconds) => {
             dispatch({ type: "SET_PROCESSING", payload: true });
             try {
                 const outUrl = await processVideo(ffmpeg, videoUrl, {
-                    startTime: formatTime(state.startTime),
-                    endTime: formatTime(state.endTime),
+                    startTime: formatTime(range.startSec),
+                    endTime: formatTime(range.endSec),
                     mute: state.muted,
                     isPreview,
                     quality: state.selectedQuality,
@@ -101,15 +102,7 @@ export function useVideoPlayer(videoUrl: string, ffmpeg: FFmpeg, ffmpegLoaded: b
                 dispatch({ type: "SET_PROCESSING", payload: false });
             }
         },
-        [
-            ffmpeg,
-            videoUrl,
-            state.startTime,
-            state.endTime,
-            state.muted,
-            state.selectedQuality,
-            setPreviewUrl,
-        ],
+        [ffmpeg, videoUrl, state.muted, state.selectedQuality, setPreviewUrl],
     );
 
     const handleMuteToggle = useCallback((muted: boolean) => {
@@ -121,12 +114,13 @@ export function useVideoPlayer(videoUrl: string, ffmpeg: FFmpeg, ffmpegLoaded: b
     }, []);
 
     const setTrimFromTimeInputs = useCallback((next: [string, string]) => {
+        const startTime = tryParseHmsToSeconds(next[0]);
+        const endTime = tryParseHmsToSeconds(next[1]);
+        if (startTime === null || endTime === null) return;
+
         dispatch({
             type: "SET_TIMES",
-            payload: {
-                startTime: parseTimeCodeToSeconds(next[0]),
-                endTime: parseTimeCodeToSeconds(next[1]),
-            },
+            payload: { startTime, endTime },
         });
     }, []);
 

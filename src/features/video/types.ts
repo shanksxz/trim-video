@@ -28,6 +28,12 @@ export type VideoPlayerAction =
     | { type: "INITIALIZE_VIDEO"; payload: { duration: number; muted: boolean } }
     | { type: "CLEAR_PREVIEW" };
 
+/** Validated trim range in whole seconds (matches `HH:MM:SS` inputs). */
+export type TrimRangeSeconds = {
+    startSec: number;
+    endSec: number;
+};
+
 export interface VideoProcessingOptions {
     startTime: string;
     endTime: string;
@@ -37,11 +43,12 @@ export interface VideoProcessingOptions {
 }
 
 export interface VideoTrimmerProps {
-    onProcessVideo: () => void | Promise<void>;
-    onPreviewVideo: () => void;
-    clearPreviewUrl: () => void;
+    onProcessVideo: (range: TrimRangeSeconds) => void | Promise<void>;
+    onPreviewVideo: (range: TrimRangeSeconds) => void;
     duration: [string, string];
     setDuration: (duration: [string, string]) => void;
+    /** Source video length in seconds; used to reject start/end past the end of the file. */
+    videoDurationSeconds?: number;
     processing: boolean;
     quality: VideoQuality;
     onQualityChange: (quality: VideoQuality) => void;

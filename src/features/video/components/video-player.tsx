@@ -37,11 +37,11 @@ export default function VideoPlayer({ videoUrl }: { videoUrl: string }) {
 
             <div className="md:w-[30%] md:min-w-[350px] w-full">
                 <VideoTrimmer
+                    videoDurationSeconds={state.videoDuration}
                     muted={state.muted}
                     onMuteToggle={handleMuteToggle}
-                    clearPreviewUrl={clearPreview}
-                    onProcessVideo={() => runExport(false)}
-                    onPreviewVideo={() => runExport(true)}
+                    onProcessVideo={(range) => runExport(false, range)}
+                    onPreviewVideo={(range) => runExport(true, range)}
                     duration={[formatTime(state.startTime), formatTime(state.endTime)]}
                     setDuration={(next) => {
                         setTrimFromTimeInputs(next);
