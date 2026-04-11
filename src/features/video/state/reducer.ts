@@ -4,7 +4,6 @@ import type { VideoPlayerAction, VideoPlayerState } from "./types";
 export const initialVideoPlayerState: VideoPlayerState = {
     startTime: 0,
     endTime: 0,
-    currentTime: 0,
     videoDuration: 0,
     processing: false,
     previewUrl: null,

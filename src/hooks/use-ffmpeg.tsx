@@ -1,6 +1,6 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 type FfmpegContextType = {
     ffmpeg: FFmpeg;
@@ -15,7 +15,6 @@ export default function FfmpegProvider({ children }: { children: React.ReactNode
 
     useEffect(() => {
         (async () => {
-            console.log("loading ffmpeg");
             const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
             const ffmpeg = ffmpegRef.current;
             ffmpeg.on("log", ({ message }) => {
@@ -25,16 +24,13 @@ export default function FfmpegProvider({ children }: { children: React.ReactNode
                 coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
                 wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
             });
-            console.log("ffmpeg loaded");
             setLoaded(true);
         })();
     }, []);
 
-    return (
-        <FfmpegContext.Provider value={{ ffmpeg: ffmpegRef.current, loaded }}>
-            {children}
-        </FfmpegContext.Provider>
-    );
+    const value = useMemo(() => ({ ffmpeg: ffmpegRef.current, loaded }), [loaded]);
+
+    return <FfmpegContext.Provider value={value}>{children}</FfmpegContext.Provider>;
 }
 
 export function useFfmpeg() {

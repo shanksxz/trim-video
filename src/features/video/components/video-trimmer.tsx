@@ -30,6 +30,7 @@ export default function VideoTrimmer({
     onMuteToggle,
 }: VideoTrimmerProps) {
     const [error, setError] = useState<string | null>(null);
+    const trimLocked = processing || !!error;
 
     const handleDurationChange = (index: 0 | 1, value: string) => {
         if (!validateTimeFormat(value)) {
@@ -62,7 +63,7 @@ export default function VideoTrimmer({
                             </Badge>
                         </CardTitle>
                         <CardDescription className="text-sm text-muted-foreground">
-                            Adjust video quality and trim settings
+                            Set start and end with HH:MM:SS, then preview or download.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -82,6 +83,7 @@ export default function VideoTrimmer({
 
                             <Select
                                 value={quality.label}
+                                disabled={trimLocked}
                                 onValueChange={(value) => {
                                     const newQuality = qualities.find((q) => q.label === value);
                                     if (newQuality) onQualityChange(newQuality);
@@ -117,6 +119,7 @@ export default function VideoTrimmer({
                                     <Button
                                         variant={muted ? "destructive" : "outline"}
                                         size="sm"
+                                        disabled={trimLocked}
                                         onClick={() => onMuteToggle(!muted)}
                                     >
                                         {muted ? (
@@ -139,6 +142,7 @@ export default function VideoTrimmer({
                                 <Input
                                     type="text"
                                     value={duration[0]}
+                                    disabled={trimLocked}
                                     onChange={(e) => handleDurationChange(0, e.target.value)}
                                     placeholder="00:00:00"
                                     className={error ? "border-destructive" : ""}
@@ -149,6 +153,7 @@ export default function VideoTrimmer({
                                 <Input
                                     type="text"
                                     value={duration[1]}
+                                    disabled={trimLocked}
                                     onChange={(e) => handleDurationChange(1, e.target.value)}
                                     placeholder="00:00:00"
                                     className={error ? "border-destructive" : ""}
@@ -171,7 +176,7 @@ export default function VideoTrimmer({
                             <Button
                                 size="lg"
                                 onClick={onPreviewVideo}
-                                disabled={processing || !!error}
+                                disabled={trimLocked}
                                 variant="outline"
                                 className="w-full"
                             >
@@ -189,7 +194,7 @@ export default function VideoTrimmer({
                             <Button
                                 onClick={onProcessVideo}
                                 size="lg"
-                                disabled={processing || !!error}
+                                disabled={trimLocked}
                                 className="w-full"
                             >
                                 <Download className="h-4 w-4 mr-2" />

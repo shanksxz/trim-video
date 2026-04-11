@@ -8,7 +8,6 @@ export interface VideoQuality {
 export interface VideoPlayerState {
     startTime: number;
     endTime: number;
-    currentTime: number;
     videoDuration: number;
     processing: boolean;
     previewUrl: string | null;
@@ -19,7 +18,7 @@ export interface VideoPlayerState {
 export type VideoPlayerAction =
     | {
           type: "SET_TIMES";
-          payload: { startTime?: number; endTime?: number; currentTime?: number };
+          payload: { startTime?: number; endTime?: number };
       }
     | { type: "SET_DURATION"; payload: number }
     | { type: "SET_PROCESSING"; payload: boolean }
@@ -37,13 +36,6 @@ export interface VideoProcessingOptions {
     quality?: VideoQuality;
 }
 
-export interface ThumbnailGenerationOptions {
-    count?: number;
-    width?: number;
-    height?: number;
-    videoDuration?: number;
-}
-
 export interface VideoTrimmerProps {
     onProcessVideo: () => void | Promise<void>;
     onPreviewVideo: () => void;
@@ -56,15 +48,4 @@ export interface VideoTrimmerProps {
     qualities: VideoQuality[];
     muted: boolean;
     onMuteToggle: (muted: boolean) => void;
-}
-
-export interface VideoTimelineProps {
-    videoUrl: string;
-    duration: number;
-    startTime: number;
-    endTime: number;
-    onStartTimeChange: (time: number) => void;
-    onEndTimeChange: (time: number) => void;
-    onSeek: (time: number) => void;
-    currentTime: number;
 }
