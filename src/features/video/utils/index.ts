@@ -2,10 +2,7 @@ import type { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { toast } from "sonner";
 import { DEFAULT_THUMBNAIL_COUNT, DEFAULT_THUMBNAIL_SIZE } from "../constants";
-import type {
-    ThumbnailGenerationOptions,
-    VideoProcessingOptions,
-} from "../types";
+import type { ThumbnailGenerationOptions, VideoProcessingOptions } from "../types";
 
 export async function processVideo(
     ffmpeg: FFmpeg,
@@ -17,14 +14,7 @@ export async function processVideo(
         await ffmpeg.writeFile("input.mp4", video);
 
         const outputFileName = options.isPreview ? "preview.mp4" : "output.mp4";
-        const args = [
-            "-i",
-            "input.mp4",
-            "-ss",
-            options.startTime,
-            "-to",
-            options.endTime,
-        ];
+        const args = ["-i", "input.mp4", "-ss", options.startTime, "-to", options.endTime];
 
         if (options.quality && options.quality.width !== -1) {
             args.push(
@@ -64,9 +54,7 @@ export function validateTimeFormat(time: string): boolean {
 }
 
 export function validateTimeRange(start: string, end: string): boolean {
-    const [startHours, startMinutes, startSeconds] = start
-        .split(":")
-        .map(Number);
+    const [startHours, startMinutes, startSeconds] = start.split(":").map(Number);
     const [endHours, endMinutes, endSeconds] = end.split(":").map(Number);
 
     const startTotal = startHours * 3600 + startMinutes * 60 + startSeconds;
